@@ -16,10 +16,12 @@ EDGE_SIZE = 1
 
 KEY_MOVE_RIGHT = 'd'
 KEY_MOVE_LEFT = 'a'
-KEY_ROTATE_CLOCKWISE = 'w'
-KEY_ROTATE_ANTICLOCKWISE = 'e'
+KEY_MOVE_DOWN = 's'
+KEY_ROTATE = 'w'
 
-LOOP_TIME = 1
+LOOP_TIME = 0.5
+CONTROL_DURATION = 0.1
+DRAWING_DURATION = 0.2
 
 TETROMINOS = [
         [[1],
@@ -36,39 +38,61 @@ TETROMINOS = [
          [1, 1]],
 
         [[1, 1],
-         [1, 1]]
+         [1, 1]],
+
+        [[0, 1, 1],
+         [1, 1, 0]],
+
+        [[1, 1, 0],
+         [0, 1, 1]],
+
+        [[0, 1, 0],
+         [1, 1, 1]]
 ]
 
 
 def main():
     board = init_gameboard()
     tetromino = Tetromino(board)
-    last_moving_time = time.time()
+    current_time = time.time()
+    last_moving_time = current_time
+    last_slide_time = current_time
+    last_rotate_time = current_time
+    last_drawing_time = current_time
+    clear_console()
     while not is_gameover(board):
         current_time = time.time()
-        time_diff = current_time - last_moving_time
 
         # controll position of tetromino
-        if keyboard.press_and_release(KEY_MOVE_RIGHT):
-            tetromino.move_right()
-        elif keyboard.press_and_release(KEY_MOVE_LEFT):
-            tetromino.move_left()
-        elif keyboard.press_and_release(KEY_ROTATE_CLOCKWISE):
-            tetromino.rotate_clockwise()
-        elif keyboard.press_and_release(KEY_ROTATE_ANTICLOCKWISE):
-            tetromino.rotate_anticlockwise()
+        if current_time - last_slide_time > CONTROL_DURATION:
+            if keyboard.is_pressed(KEY_MOVE_RIGHT):
+                tetromino.move_right()
+                last_slide_time = time.time()
+            elif keyboard.is_pressed(KEY_MOVE_LEFT):
+                tetromino.move_left()
+                last_slide_time = time.time()
+            elif keyboard.is_pressed(KEY_MOVE_DOWN):
+                tetromino.move_down()
+                last_slide_time = time.time()
 
-        if time_diff > LOOP_TIME:
+        if current_time - last_rotate_time > CONTROL_DURATION:
+            if keyboard.is_pressed(KEY_ROTATE):
+                tetromino.rotate()
+                last_rotate_time = time.time()
+
+        if current_time - last_moving_time > LOOP_TIME:
             if tetromino.can_move_down():
                 tetromino.move_down()
                 last_moving_time = time.time()
             else:
                 merge_tetromino(board, tetromino)
                 tetromino = Tetromino(board)
+
         board = remove_completed_row(board)
         board = append_tetromino(refresh_board(board), tetromino)
-        if time_diff > LOOP_TIME:
+        if current_time - last_drawing_time > DRAWING_DURATION:
             draw_board(board)
+            last_drawing_time = time.time()
         # pdb.set_trace()  # for testing purpose
 
 
@@ -82,7 +106,7 @@ def init_gameboard():
 
 def remove_completed_row(board):
     for row_index in range(len(board) - EDGE_SIZE):
-        if 0 not in board[row_index]:
+        if 0 not in board[row_index] and 1 not in board[row_index]:
             board.pop(row_index)
             board.insert(0, create_board_row())
     return board
@@ -136,14 +160,17 @@ def append_tetromino(board, tetromino):
 
 
 def draw_board(board):
-    clear_board()
+    clear_console()
     for row in board:
         for col in row:
-            sys.stdout.write(str(col))
+            if col == 0:
+                sys.stdout.write(" ")
+            else:
+                sys.stdout.write(str(col))
         sys.stdout.write("\n")
 
 
-def clear_board():
+def clear_console():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
@@ -173,16 +200,6 @@ class Tetromino:
     def get_init_position_y(self):
         return 0
 
-    def command(self, event):
-        if event.key == KEY_MOVE_RIGHT:
-            self.move_right()
-        elif event.key == KEY_MOVE_LEFT:
-            self.move_left()
-        elif event.key == KEY_ROTATE_CLOCKWISE:
-            self.rotate_clockwise()
-        elif event.ky == KEY_ROTATE_ANTICLOCKWISE:
-            self.rotate_anticlockwise()
-
     def move_right(self):
         if self.can_move_right():
             self.pos_x += 1
@@ -204,11 +221,18 @@ class Tetromino:
     def can_move_down(self):
         return self.is_no_overlap(self.form, [0, 1])
 
-    def rotate_clockwise(self):
-        pass
+    def rotate(self):
+        new_size_x = self.size_y
+        new_size_y = self.size_x
+        new_form = self.form[::-1]
+        new_form = [x for x in zip(*new_form)]
+        if self.can_rotate(new_form):
+            self.form = new_form
+            self.size_x = new_size_x
+            self.size_y = new_size_y
 
-    def rotate_anticlockwise(self):
-        pass
+    def can_rotate(self, new_form):
+        return self.is_no_overlap(new_form, [0, 0])
 
     def is_no_overlap(self, form, next_pos):
         x = next_pos[0]
