@@ -9,10 +9,10 @@ CANVAS_VERTICAL = 20
 TOP_EDGE_SIZE = 5
 EDGE_SIZE = 1
 
-KEY_MOVE_RIGHT = ''
-KEY_MOVE_LEFT = ''
-KEY_ROTATE_CLOCKWISE = ''
-KEY_ROTATE_ANTICLOCKWISE = ''
+KEY_MOVE_RIGHT = 'd'
+KEY_MOVE_LEFT = 'a'
+KEY_ROTATE_CLOCKWISE = 'w'
+KEY_ROTATE_ANTICLOCKWISE = 'e'
 
 TETROMINOS = [
         [[1],
@@ -35,14 +35,14 @@ TETROMINOS = [
 
 def main():
     board = init_gameboard()
-    # while True:
-    #    clear_board()
-    #    draw_board(board)
-    clear_board()
-    if not is_tetromino_exist():
-        tetromino = Tetromino()
-    merge_board(board, tetromino)
-    draw_board(board)
+    tetrimino = None
+    while not is_gameover():
+        clear_board()
+        if not tetrimino:
+            tetromino = Tetromino(board)
+        tetromino.move_down()
+        board = merge_board(board, tetromino)
+        draw_board(board)
 
 
 def init_gameboard():
@@ -67,7 +67,16 @@ def clear_board():
 
 
 def merge_board(board, tetromino):
-    pass
+    form = tetromino.form
+    pos_x = tetromino.pos_x
+    pos_y = tetromino.pos_y
+    size_x = tetromino.size_x
+    size_y = tetromino.size_y
+    for x in range(size_x):
+        for y in range(size_y):
+            if form[y][x] == 1:
+                board[pos_y + y][pos_x + x] = 1
+    return board
 
 
 def draw_board(board):
@@ -87,46 +96,48 @@ def is_gameover():
 
 class Tetromino:
     def __init__(self, board):
-        self.form = self.get_random_tetrimino()
-        self.position_x = self.get_init_position_x()
-        self.position_y = self.get_init_position_y()
+        self.form = self.get_random_tetromino()
+        self.pos_x = self.get_init_position_x()
+        self.pos_y = self.get_init_position_y()
+        self.size_x = len(self.form[0])
+        self.size_y = len(self.form)
         self.board = board
 
-    def get_random_tetromino():
-        return random.choise(TETROMINOS)
+    def get_random_tetromino(self):
+        return random.choice(TETROMINOS)
 
-    def get_init_position_x():
-        return (CANVAS_HORIZONTAL + (EDGE_SIZE * 2)) / 2
+    def get_init_position_x(self):
+        return 6
 
-    def get_init_position_y():
+    def get_init_position_y(self):
         return 0
 
-    def move_right(piece):
+    def move_right(self):
         pass
 
-    def can_move_right():
+    def can_move_right(self):
         pass
 
-    def move_left(piece):
+    def move_left(self):
         pass
 
-    def can_move_left():
+    def can_move_left(self):
         pass
 
-    def move_down(self, piece):
+    def move_down(self):
         if self.can_move_down():
             self.position_y += 1
 
-    def can_move_down():
+    def can_move_down(self):
         pass
 
-    def rotate_clockwise(piece):
+    def rotate_clockwise(self, piece):
         pass
 
-    def rotate_anticlockwise(piece):
+    def rotate_anticlockwise(self, piece):
         pass
 
-    def check_overlap():
+    def check_overlap(self, future_position):
         pass
 
 
