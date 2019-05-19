@@ -188,6 +188,12 @@ def draw_board(board):
             else:
                 sys.stdout.write(str(col))
         sys.stdout.write("\n")
+    sys.stdout.write("\nExplanation:\n")
+    sys.stdout.write("\tMove right: {}\n".format(KEY_MOVE_RIGHT))
+    sys.stdout.write("\tMove left: {}\n".format(KEY_MOVE_LEFT))
+    sys.stdout.write("\tMove down: {}\n".format(KEY_MOVE_DOWN))
+    sys.stdout.write("\tRotate: {}\n".format(KEY_ROTATE))
+    sys.stdout.write("\tPause: {}\n".format(KEY_PAUSE))
 
 
 def clear_console():
