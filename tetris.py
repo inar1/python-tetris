@@ -224,8 +224,14 @@ def append_tetromino(board, tetromino):
 def draw_grid(grid):
     if grid == BLANK:
         sys.stdout.write(" ")
+    elif grid == DROPPING_BLOCK:
+        sys.stdout.write("■")
+    elif grid == MERGED_BLOCK:
+        sys.stdout.write("□")
+    elif grid == CANVAS_EDGE:
+        sys.stdout.write("◆")
     elif grid == BLINKING_BLOCK:
-        sys.stdout.write(to_red(str(grid)))
+        sys.stdout.write(to_red("■"))
     else:
         sys.stdout.write(str(grid))
 
