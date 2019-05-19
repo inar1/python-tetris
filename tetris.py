@@ -25,6 +25,11 @@ CONTROL_DURATION = 0.1
 DRAWING_DURATION = 0.2
 PAUSE_DURATION = 1
 
+CANVAS_EDGE = 3
+MERGED_BLOCK = 2
+DROPPING_BLOCK = 1
+BLANK = 0
+
 TETROMINOS = [
         [[1],
          [1],
@@ -120,15 +125,15 @@ def init_gameboard():
     board = []
     for v in range(CANVAS_VERTICAL + TOP_EDGE_SIZE):
         board.append(create_board_row())
-    board.append([3 for x in range(CANVAS_HORIZONTAL + (EDGE_SIZE * 2))])
+    board.append([CANVAS_EDGE for x in range(CANVAS_HORIZONTAL + (EDGE_SIZE * 2))])
     return board
 
 
 def remove_completed_row(board):
     for row_index in range(len(board) - EDGE_SIZE):
-        if 0 not in board[row_index] and 1 not in board[row_index]:
+        if BLANK not in board[row_index] and DROPPING_BLOCK not in board[row_index]:
             board.pop(row_index)
-            board.insert(0, create_board_row())
+            board.insert(BLANK, create_board_row())
     return board
 
 
@@ -137,11 +142,11 @@ def create_board_row():
     for h in range(CANVAS_HORIZONTAL + (EDGE_SIZE * 2)):
         index = h + 1
         if index <= EDGE_SIZE:
-            line.append(3)
+            line.append(CANVAS_EDGE)
         elif h >= EDGE_SIZE + CANVAS_HORIZONTAL:
-            line.append(3)
+            line.append(CANVAS_EDGE)
         else:
-            line.append(0)
+            line.append(BLANK)
     return line
 
 
@@ -149,7 +154,7 @@ def refresh_board(board):
     for v in range(len(board)):
         for h in range(len(board[0])):
             if board[v][h] < 2:
-                board[v][h] = 0
+                board[v][h] = BLANK
     return board
 
 
@@ -179,14 +184,18 @@ def append_tetromino(board, tetromino):
     return board
 
 
+def draw_grid(grid):
+    if grid == 0:
+        sys.stdout.write(" ")
+    else:
+        sys.stdout.write(str(grid))
+
+
 def draw_board(board):
     clear_console()
     for row in board:
         for col in row:
-            if col == 0:
-                sys.stdout.write(" ")
-            else:
-                sys.stdout.write(str(col))
+            draw_grid(col)
         sys.stdout.write("\n")
     sys.stdout.write("\nExplanation:\n")
     sys.stdout.write("\tMove right: {}\n".format(KEY_MOVE_RIGHT))
