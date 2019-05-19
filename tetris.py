@@ -24,7 +24,9 @@ LOOP_TIME = 0.5
 CONTROL_DURATION = 0.1
 DRAWING_DURATION = 0.2
 PAUSE_DURATION = 1
+BLINKING_DURATION = 0.5
 
+BLINKING_BLOCK = 4
 CANVAS_EDGE = 3
 MERGED_BLOCK = 2
 DROPPING_BLOCK = 1
@@ -69,6 +71,7 @@ def main():
     last_rotate_time = current_time
     last_drawing_time = current_time
     last_paused_time = current_time
+    blink_start_time = current_time
     is_paused = False
     clear_console()
 
@@ -113,7 +116,15 @@ def main():
                 merge_tetromino(board, tetromino)
                 tetromino = Tetromino(board)
 
-        board = remove_completed_row(board)
+        # flag completed row and delete flagged row
+        if has_completed_row(board):
+            if has_flagged_row(board):
+                if current_time - blink_start_time > BLINKING_DURATION:
+                    remove_completed_row(board)
+            else:
+                flag_completed_row(board)
+                blink_start_time = time.time()
+
         board = append_tetromino(refresh_board(board), tetromino)
         if current_time - last_drawing_time > DRAWING_DURATION:
             draw_board(board)
@@ -129,9 +140,35 @@ def init_gameboard():
     return board
 
 
+def flag_completed_row(board):
+    for row_index in range(len(board) - EDGE_SIZE):
+        if BLANK not in board[row_index] and \
+                DROPPING_BLOCK not in board[row_index]:
+            board[row_index] = [CANVAS_EDGE] + \
+                               [BLINKING_BLOCK for x in range(CANVAS_HORIZONTAL)] + \
+                               [CANVAS_EDGE]
+    return board
+
+
+def has_flagged_row(board):
+    for row_index in range(len(board) - EDGE_SIZE):
+        row = board[row_index]
+        if BLINKING_BLOCK in row:
+            return True
+    return False
+
+
+def has_completed_row(board):
+    for row_index in range(len(board) - EDGE_SIZE):
+        row = board[row_index]
+        if BLANK not in row and DROPPING_BLOCK not in row:
+            return True
+    return False
+
+
 def remove_completed_row(board):
     for row_index in range(len(board) - EDGE_SIZE):
-        if BLANK not in board[row_index] and DROPPING_BLOCK not in board[row_index]:
+        if BLINKING_BLOCK in board[row_index]:
             board.pop(row_index)
             board.insert(BLANK, create_board_row())
     return board
