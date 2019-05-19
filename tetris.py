@@ -18,10 +18,12 @@ KEY_MOVE_RIGHT = 'd'
 KEY_MOVE_LEFT = 'a'
 KEY_MOVE_DOWN = 's'
 KEY_ROTATE = 'w'
+KEY_PAUSE = 'p'
 
 LOOP_TIME = 0.5
 CONTROL_DURATION = 0.1
 DRAWING_DURATION = 0.2
+PAUSE_DURATION = 1
 
 TETROMINOS = [
         [[1],
@@ -52,6 +54,8 @@ TETROMINOS = [
 
 
 def main():
+
+    # initialization
     board = init_gameboard()
     tetromino = Tetromino(board)
     current_time = time.time()
@@ -59,9 +63,25 @@ def main():
     last_slide_time = current_time
     last_rotate_time = current_time
     last_drawing_time = current_time
+    last_paused_time = current_time
+    is_paused = False
     clear_console()
+
     while not is_gameover(board):
         current_time = time.time()
+
+        # pause if pause button is pressed
+        if keyboard.is_pressed(KEY_PAUSE):
+            if current_time - last_paused_time > PAUSE_DURATION:
+                if is_paused:
+                    is_paused = False
+                    last_paused_time = time.time()
+                else:
+                    is_paused = True
+                    last_paused_time = time.time()
+        if is_paused:
+            last_moving_time = time.time()
+            continue
 
         # controll position of tetromino
         if current_time - last_slide_time > CONTROL_DURATION:
