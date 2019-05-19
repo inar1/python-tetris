@@ -222,8 +222,10 @@ def append_tetromino(board, tetromino):
 
 
 def draw_grid(grid):
-    if grid == 0:
+    if grid == BLANK:
         sys.stdout.write(" ")
+    elif grid == BLINKING_BLOCK:
+        sys.stdout.write(to_red(str(grid)))
     else:
         sys.stdout.write(str(grid))
 
@@ -240,6 +242,10 @@ def draw_board(board):
     sys.stdout.write("\tMove down: {}\n".format(KEY_MOVE_DOWN))
     sys.stdout.write("\tRotate: {}\n".format(KEY_ROTATE))
     sys.stdout.write("\tPause: {}\n".format(KEY_PAUSE))
+
+
+def to_red(string):
+    return '\033[31m' + string + '\033[0m'
 
 
 def clear_console():
