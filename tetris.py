@@ -225,15 +225,13 @@ def draw_grid(grid):
     if grid == BLANK:
         sys.stdout.write(" ")
     elif grid == DROPPING_BLOCK:
-        sys.stdout.write("■")
+        sys.stdout.write("1")
     elif grid == MERGED_BLOCK:
-        sys.stdout.write("□")
+        sys.stdout.write("2")
     elif grid == CANVAS_EDGE:
-        sys.stdout.write("◆")
+        sys.stdout.write("3")
     elif grid == BLINKING_BLOCK:
-        sys.stdout.write(to_red("■"))
-    else:
-        sys.stdout.write(str(grid))
+        sys.stdout.write(to_red("4"))
 
 
 def draw_board(board):
